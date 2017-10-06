@@ -12,7 +12,7 @@ namespace Vents_PLM
 {
     public partial class AttributEditor : Form
     {
-        TreeView treeView = new TreeView();
+        SQLConnection sqlObj = SQLConnection.SQLObj;
         AttributeProperty newAtribute;
         AttributeProperty selectedAttribut;
         int index = 0;
@@ -21,8 +21,8 @@ namespace Vents_PLM
         public AttributEditor()
         {
             InitializeComponent();
-            treeView.GetAttributs();
-            treeView.MakeTreeView(treeView1);            
+            sqlObj.GetAttributes();
+            MakeTreeView();            
         }
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -38,26 +38,25 @@ namespace Vents_PLM
             }
             else if (e.Button == MouseButtons.Left)
             {
-                    selectedAttribut = treeView.attributePropList.Where(x => x.NAME.Equals(e.Node.Text)).ToList().FirstOrDefault();
-                    propertyGrid1.SelectedObject = selectedAttribut;
-                    index = treeView.attributePropList.IndexOf(selectedAttribut);
+                selectedAttribut = sqlObj.attributePropList.Where(x => x.NAME.Equals(e.Node.Text)).ToList().FirstOrDefault();
+                propertyGrid1.SelectedObject = selectedAttribut;
+                index = sqlObj.attributePropList.IndexOf(selectedAttribut);
             }
         }
 
         private void MenuItemDelete_Click(object sender, EventArgs e)
         {
             selectedAttribut.DeleteAttribute(selectedAttribut);
-            treeView.attributePropList.Remove(treeView.attributePropList.Where(x => x.ATTRIBUTE_ID == selectedAttribut.ATTRIBUTE_ID).First());
-            treeView.MakeTreeView(treeView1);
+            sqlObj.attributePropList.Remove(sqlObj.attributePropList.Where(x => x.ATTRIBUTE_ID == selectedAttribut.ATTRIBUTE_ID).First());
+            MakeTreeView();
         }  
-
         private void AddPropMenuItem_Click(object sender, EventArgs e)
         {
             saveOrUpdate = true;
             newAtribute = new AttributeProperty();
             propertyGrid1.SelectedObject = newAtribute;
-            treeView.attributePropList.Add(newAtribute);
-            treeView.MakeTreeView(treeView1);
+            sqlObj.attributePropList.Add(newAtribute);
+            MakeTreeView();
         }
 
 
@@ -65,29 +64,41 @@ namespace Vents_PLM
         {
             Close();
         }
-
-
         private void saveNewAttr_Btn_Click(object sender, EventArgs e)
         {
             if (saveOrUpdate == false)
             {
-                /*treeView.attributePropList[index].NAME = selectedAttribut.NAME;
-                treeView.attributePropList[index].NOTE = selectedAttribut.NOTE;
-                treeView.attributePropList[index].SHORT_NAME = selectedAttribut.SHORT_NAME;
-                treeView.attributePropList[index].ALIAS = selectedAttribut.ALIAS;
-                treeView.attributePropList[index].ATTRIBUTE_ID = selectedAttribut.ATTRIBUTE_ID;
-                treeView.attributePropList[index].GUID = selectedAttribut.GUID;*/
-                treeView.attributePropList[index] = selectedAttribut;
+                sqlObj.attributePropList[index] = selectedAttribut;
                 selectedAttribut.UpdateAttribute(selectedAttribut);
-
             }
             else
             {
                 newAtribute.SaveAttribute(newAtribute);
             }
-                treeView.MakeTreeView(treeView1);
+            MakeTreeView();
         }
 
-        
+
+        public void MakeTreeView()
+        {
+            treeView1.Nodes.Clear();
+
+            TreeNode attrNode = new TreeNode();
+            TreeNode objNode = new TreeNode();
+            attrNode.Name = "Attribute";
+            attrNode.Text = "Атрибуты";
+            attrNode.Name = "ObjType";
+            objNode.Text = "Типы объектов";
+            treeView1.Nodes.Add(attrNode);
+            treeView1.Nodes.Add(objNode);
+
+            TreeNode node = new TreeNode();
+            foreach (var item in sqlObj.attributePropList)
+            {
+                node.Name = item.NAME;
+                treeView1.Nodes[0].Nodes.Add(node.Name);
+            }
+            treeView1.ExpandAll();
+        }
     }
 }

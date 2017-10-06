@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Collections;
 using System.ComponentModel;
 using System.Data.SqlClient;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Vents_PLM
 {
@@ -71,6 +68,7 @@ namespace Vents_PLM
                 set { m_NAME = value; }
             }
 
+
             String m_ALIAS;
             [Browsable(true)]
             [Description("Позволяет ввести Alias")]
@@ -106,7 +104,7 @@ namespace Vents_PLM
         {
             SqlDataReader reader;
             SqlCommand save = new SqlCommand();
-            save.Connection = TreeView.con;
+            save.Connection = SQLConnection.con;
             save.Connection.Open();
             save.CommandType = System.Data.CommandType.StoredProcedure;
             save.CommandText = "IMS_ADD_ATTRIBUTE";
@@ -123,7 +121,7 @@ namespace Vents_PLM
         {
             SqlDataReader reader;
             SqlCommand save = new SqlCommand();
-            save.Connection = TreeView.con;
+            save.Connection = SQLConnection.con;
             save.Connection.Open();
             save.CommandType = System.Data.CommandType.StoredProcedure;
             save.CommandText = "IMS_UPDATE_ATTRIBUTE";
@@ -140,14 +138,14 @@ namespace Vents_PLM
         {
             SqlDataReader reader;
             SqlCommand save = new SqlCommand();
-            save.Connection = TreeView.con;
+            save.Connection = SQLConnection.con;
             save.Connection.Open();
             save.CommandType = System.Data.CommandType.StoredProcedure;
             save.CommandText = "IMS_DELETE_ATTRIBUTE";
-            save.Parameters.AddWithValue("inGUID", property.m_GUID);
-            save.Clone();           
+            save.Parameters.AddWithValue("inGUID", property.m_GUID);                       
             reader = save.ExecuteReader();
             reader.Close();
+            save.Connection.Close();
         }        
     }
     public class StringListConverter : TypeConverter
@@ -199,11 +197,4 @@ namespace Vents_PLM
             return base.ConvertFrom(context, culture, value);
         }
     }
-
-    //    F_MULTIPLE_VALUED - IMS_POSSIBLE_VALUES
-    //0 Атрибут может содержать одно значение
-    //1 Атрибут может содержать множество значений
-    //2 Атрибут может содержать одно значение из списка разрешённых значений+
-    //3 Атрибут может содержать множество значений из списка
-
 }

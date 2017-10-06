@@ -2,26 +2,38 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace Vents_PLM
 {
-    class TreeView
+    class SQLConnection
     {
         public static SqlConnection con = new SqlConnection();
         SqlDataReader reader;
         string connectionString = "Data Source=pdmsrv;Initial Catalog=SWPlusDB;Persist Security Info=True;User ID=AirVentsCad;Password=1";
         public  List<AttributeProperty> attributePropList;
+        public List<ObjectsProperty> objectsProperty;
 
-        public TreeView()
+        private static SQLConnection instance = new SQLConnection();
+        public static SQLConnection SQLObj
+        {
+            get { return instance; }
+            set
+            {
+                if (instance == null)
+                { instance = new SQLConnection(); }
+            }
+        }
+
+        private SQLConnection()
         {
             con.ConnectionString = connectionString;
             attributePropList = new List<AttributeProperty>();
+            objectsProperty = new List<ObjectsProperty>();
         }
 
 
-        public List<AttributeProperty> GetAttributs()
+        public List<AttributeProperty> GetAttributes()
         {
             con.Open();
             SqlCommand command = new SqlCommand("SELECT * FROM IMS_ATTRIBUTES", con);
@@ -31,7 +43,8 @@ namespace Vents_PLM
             reader = command.ExecuteReader();
             while(reader.Read())
             {
-                attributePropList.Add(new AttributeProperty {
+                attributePropList.Add(new AttributeProperty
+                {
                     ATTRIBUTE_ID = Convert.ToInt32(reader["F_ATTRIBUTE_ID"]).ToString(),
                     GUID = ((Guid)(reader["F_GUID"])).ToString(),
                     NAME = reader["F_NAME"] == null ? string.Empty : reader["F_NAME"].ToString(),
@@ -45,27 +58,28 @@ namespace Vents_PLM
 
             return attributePropList;
         }
-
-        public void MakeTreeView(System.Windows.Forms.TreeView tv)
+        public List<ObjectsProperty> GetObjects()
         {
-            tv.Nodes.Clear();
+            con.Open();
+            SqlCommand command = new SqlCommand("SELECT * FROM IMS_OBJECT_TYPES", con);
 
-            TreeNode attrNode = new TreeNode();
-            TreeNode objNode = new TreeNode();
-            attrNode.Name = "Attribute";
-            attrNode.Text = "Атрибуты";
-            attrNode.Name = "ObjType";
-            objNode.Text = "Типы объектов";
-            tv.Nodes.Add(attrNode);
-            tv.Nodes.Add(objNode);
+            command.CommandType = CommandType.Text;
 
-            TreeNode node = new TreeNode();
-            foreach (var item in attributePropList)
+            reader = command.ExecuteReader();
+            while (reader.Read())
             {
-                node.Name = item.NAME;
-                tv.Nodes[0].Nodes.Add(node.Name);
+                objectsProperty.Add(new ObjectsProperty
+                {
+                    TYPE_NAME  = reader["F_OBJ_TYPE_NAME"].ToString(),
+                    GUID = ((Guid)(reader["F_GUID"])).ToString(),
+                    NAME = reader["F_OBJ_NAME"].ToString(),
+                    SHORT_NAME = reader["F_SHORT_NAME"] == null ? string.Empty : reader["F_SHORT_NAME"].ToString(),
+                    NOTE = reader["F_NOTE"] == null ? string.Empty : reader["F_NOTE"].ToString()                    
+                });
             }
-            tv.ExpandAll();
-        }
+            con.Close();
+
+            return objectsProperty;
+        }        
     }
 }
