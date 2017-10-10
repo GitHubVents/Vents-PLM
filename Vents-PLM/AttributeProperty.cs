@@ -98,6 +98,7 @@ namespace Vents_PLM
         {
             m_NAME = "Атрибут номер 1";
             GUID = Guid.NewGuid().ToString();
+            m_List = StringListConverter.s0;
         }
 
         public void SaveAttribute(AttributeProperty property)
@@ -142,20 +143,20 @@ namespace Vents_PLM
             save.Connection.Open();
             save.CommandType = System.Data.CommandType.StoredProcedure;
             save.CommandText = "IMS_DELETE_ATTRIBUTE";
-            save.Parameters.AddWithValue("inGUID", property.m_GUID);                       
+            save.Parameters.AddWithValue("inGUID", property.m_GUID);
             reader = save.ExecuteReader();
             reader.Close();
             save.Connection.Close();
-        }        
+        }
     }
     public class StringListConverter : TypeConverter
     {
          ICollection myCol;
 
-         string s0 = "Атрибут может содержать одно значение";
-         string s1 = "Атрибут может содержать множество значений";
-         string s2 = "Атрибут может содержать одно значение из списка разрешённых значений+";
-         string s3 = "Атрибут может содержать множество значений из списка";
+         public static string s0 = "Атрибут может содержать одно значение";
+         private static string s1 = "Атрибут может содержать множество значений";
+         private static string s2 = "Атрибут может содержать одно значение из списка разрешённых значений+";
+         private static string s3 = "Атрибут может содержать множество значений из списка";
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {

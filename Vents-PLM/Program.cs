@@ -13,7 +13,7 @@ namespace Vents_PLM
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new AttributEditor());
+            Application.Run(new AttributEditor());
             Application.Run(new MainForm());
         }
     }

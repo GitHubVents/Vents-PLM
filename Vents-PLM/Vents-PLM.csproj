@@ -48,9 +48,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -62,6 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddObjectControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AddObjectControl.Designer.cs">
+      <DependentUpon>AddObjectControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="AttributeProperty.cs" />
     <Compile Include="AttributEditor.cs">
       <SubType>Form</SubType>
@@ -69,6 +77,7 @@
     <Compile Include="AttributEditor.Designer.cs">
       <DependentUpon>AttributEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="IMS_Objects.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +97,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResidualMaterials\UserInterfaceLogic.cs" />
     <Compile Include="SQLConnection.cs" />
+    <Compile Include="UserInterface2.cs" />
+    <EmbeddedResource Include="AddObjectControl.resx">
+      <DependentUpon>AddObjectControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AttributEditor.resx">
       <DependentUpon>AttributEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -106,6 +119,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -130,6 +144,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

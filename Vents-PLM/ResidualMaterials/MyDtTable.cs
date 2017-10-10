@@ -19,7 +19,7 @@ namespace ResidualMaterials
         SqlConnection objCon;
         
         public List<Balance> dataList;
-        public List<Balance> dataListToView;
+        public List<Balance> dataListToView;// не удалять на него ссылаеться dynamic
 
         int LastBalanceId;
         int lastVersion;

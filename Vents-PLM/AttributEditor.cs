@@ -22,7 +22,9 @@ namespace Vents_PLM
         {
             InitializeComponent();
             sqlObj.GetAttributes();
-            MakeTreeView();            
+
+            //MakeTreeView();
+            ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");   
         }
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -48,7 +50,8 @@ namespace Vents_PLM
         {
             selectedAttribut.DeleteAttribute(selectedAttribut);
             sqlObj.attributePropList.Remove(sqlObj.attributePropList.Where(x => x.ATTRIBUTE_ID == selectedAttribut.ATTRIBUTE_ID).First());
-            MakeTreeView();
+            // MakeTreeView();
+            ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
         }  
         private void AddPropMenuItem_Click(object sender, EventArgs e)
         {
@@ -56,7 +59,8 @@ namespace Vents_PLM
             newAtribute = new AttributeProperty();
             propertyGrid1.SelectedObject = newAtribute;
             sqlObj.attributePropList.Add(newAtribute);
-            MakeTreeView();
+            //MakeTreeView();
+            ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
         }
 
 
@@ -75,30 +79,32 @@ namespace Vents_PLM
             {
                 newAtribute.SaveAttribute(newAtribute);
             }
-            MakeTreeView();
+            ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
         }
 
 
-        public void MakeTreeView()
-        {
-            treeView1.Nodes.Clear();
+        //public void MakeTreeView()
+        //{
+        //    treeView1.Nodes.Clear();
 
-            TreeNode attrNode = new TreeNode();
-            TreeNode objNode = new TreeNode();
-            attrNode.Name = "Attribute";
-            attrNode.Text = "Атрибуты";
-            attrNode.Name = "ObjType";
-            objNode.Text = "Типы объектов";
-            treeView1.Nodes.Add(attrNode);
-            treeView1.Nodes.Add(objNode);
+        //    TreeNode attrNode = new TreeNode();
+        //    TreeNode objNode = new TreeNode();
+        //    attrNode.Name = "Attribute";
+        //    attrNode.Text = "Атрибуты";
+        //    attrNode.Name = "ObjType";
+        //    objNode.Text = "Типы объектов";
+        //    treeView1.Nodes.Add(attrNode);
+        //    treeView1.Nodes.Add(objNode);
 
-            TreeNode node = new TreeNode();
-            foreach (var item in sqlObj.attributePropList)
-            {
-                node.Name = item.NAME;
-                treeView1.Nodes[0].Nodes.Add(node.Name);
-            }
-            treeView1.ExpandAll();
-        }
+        //    TreeNode node = new TreeNode();
+        //    foreach (var item in sqlObj.attributePropList)
+        //    {
+        //        node.Name = item.NAME;
+        //        treeView1.Nodes[0].Nodes.Add(node.Name);
+        //    }
+        //    treeView1.ExpandAll();
+        //}
+        UserInterface2 ui = new UserInterface2();
+        
     }
 }
