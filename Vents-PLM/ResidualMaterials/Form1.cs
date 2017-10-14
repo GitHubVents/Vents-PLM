@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ResidualMaterials;
 
@@ -19,10 +12,9 @@ namespace Vents_PLM
             dt = new MyDtTable();
             usInter = new UserInterface();
 
-            //////////////////////////////////////////////////
-            //comboBox1.SelectedIndex = 0;
+            GetComboValues();
+            comboBox1.SelectedIndex = 0;
             dt.Load_Data(MyDtTable.residualType);
-
             usInter.SuperPuper(dataGridView, dt);
         }
         MyDtTable dt;
@@ -41,8 +33,8 @@ namespace Vents_PLM
         {
             usInter.CheckIfFieldsAreFilled(txtName, txtWidthDim, txtLength, txtH);
             usInter.ConvTextToDecimal(txtName, txtWidthDim, txtLength, txtH);
-            dt.PushingDataInTable();
-
+            dt.PushingDataInTable(txtName.Text, comboBox1.SelectedItem.ToString(), txtWidthDim.Text, txtLength.Text, txtWidthDim.Text, txtH.Text);
+            
             usInter.SuperPuper(dataGridView, dt);
         }
 
@@ -132,6 +124,15 @@ namespace Vents_PLM
         private void dataGridView_SelectionChanged(object sender, EventArgs e)
         {
             MyDtTable.itemToCutFrom = usInter.GetSelectedBalance(dataGridView);
+        }
+
+        private void GetComboValues()
+        {
+            SQLConnection.SQLObj.GetComboBxProductType();
+            foreach (var item in SQLConnection.SQLObj.productTypeList)
+            {
+                comboBox1.Items.Add(item);
+            }
         }
 
     }

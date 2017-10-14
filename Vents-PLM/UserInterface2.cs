@@ -27,6 +27,7 @@ namespace Vents_PLM
                 tv.Nodes[parentName].Nodes.Add(node.Name);
             }
             tv.ExpandAll();
+            tv.Sort();
         }        
        
         public static void AttributesListComboBX(ComboBox cmbBX)

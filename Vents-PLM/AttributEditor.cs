@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Vents_PLM
@@ -22,9 +17,9 @@ namespace Vents_PLM
         {
             InitializeComponent();
             sqlObj.GetAttributes();
-
-            //MakeTreeView();
-            ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");   
+            
+            ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
+            
         }
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -50,7 +45,6 @@ namespace Vents_PLM
         {
             selectedAttribut.DeleteAttribute(selectedAttribut);
             sqlObj.attributePropList.Remove(sqlObj.attributePropList.Where(x => x.ATTRIBUTE_ID == selectedAttribut.ATTRIBUTE_ID).First());
-            // MakeTreeView();
             ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
         }  
         private void AddPropMenuItem_Click(object sender, EventArgs e)
@@ -59,7 +53,6 @@ namespace Vents_PLM
             newAtribute = new AttributeProperty();
             propertyGrid1.SelectedObject = newAtribute;
             sqlObj.attributePropList.Add(newAtribute);
-            //MakeTreeView();
             ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
         }
 
@@ -79,6 +72,8 @@ namespace Vents_PLM
             {
                 newAtribute.SaveAttribute(newAtribute);
             }
+            sqlObj.attributePropList.Clear();
+            sqlObj.GetAttributes();
             ui.MakeTreeView(treeView1, sqlObj.attributePropList, "Attribute");
         }
 

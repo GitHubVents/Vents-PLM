@@ -78,6 +78,7 @@
             this.dataGridView1.Size = new System.Drawing.Size(782, 576);
             this.dataGridView1.TabIndex = 1;
             this.dataGridView1.Visible = false;
+            this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
             // 
             // MainForm
             // 

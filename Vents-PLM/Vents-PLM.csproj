@@ -64,10 +64,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddObjectControl.cs">
+    <Compile Include="AirVentsCad\AirVentsCadControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="AddObjectControl.Designer.cs">
+    <Compile Include="AirVentsCad\AirVentsCadControl.Designer.cs">
+      <DependentUpon>AirVentsCadControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IMS_Object_Attributes.cs" />
+    <Compile Include="MountingFrame\MountingFrameControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MountingFrame\MountingFrameControl.Designer.cs">
+      <DependentUpon>MountingFrameControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResidualMaterials\AddObjectControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ResidualMaterials\AddObjectControl.Designer.cs">
       <DependentUpon>AddObjectControl.cs</DependentUpon>
     </Compile>
     <Compile Include="AttributeProperty.cs" />
@@ -98,7 +111,13 @@
     <Compile Include="ResidualMaterials\UserInterfaceLogic.cs" />
     <Compile Include="SQLConnection.cs" />
     <Compile Include="UserInterface2.cs" />
-    <EmbeddedResource Include="AddObjectControl.resx">
+    <EmbeddedResource Include="AirVentsCad\AirVentsCadControl.resx">
+      <DependentUpon>AirVentsCadControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MountingFrame\MountingFrameControl.resx">
+      <DependentUpon>MountingFrameControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ResidualMaterials\AddObjectControl.resx">
       <DependentUpon>AddObjectControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="AttributEditor.resx">

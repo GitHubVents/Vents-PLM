@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Data;
 using System.Data.SqlClient;
 using System;
+using Vents_PLM;
 
 namespace ResidualMaterials
 {
@@ -42,30 +43,55 @@ namespace ResidualMaterials
 
         public void Load_Data(bool type)
         {
-            objCon = new SqlConnection(connection);
-            objCon.Open();
-            
-            SqlCommand cmd = new SqlCommand("SELECT * FROM Balance " + type, objCon);
-                        
+            //objCon = new SqlConnection(connection);
+            //objCon.Open();
+            SQLConnection.con.Open();
+            //SqlCommand cmd = new SqlCommand("SELECT * FROM Balance " + type, objCon);
+            SqlCommand cmd = new SqlCommand(@"select F_OBJECT_ID,[Длина],[Ширина],[Наименование]
+                                                from	(select atr.F_NAME, objAtr.F_STRING_VALUE, temp.F_OBJECT_ID
+		                                                from
+			                                                 (select F_OBJECT_ID from IMS_OBJECTS where F_OBJECT_TYPE = 1001)
+		                                                as temp, IMS_OBJECT_ATTRS objAtr, IMS_ATTRIBUTES atr 
+		                                                where temp.F_OBJECT_ID = objAtr.F_OBJECT_ID
+		                                                and objAtr.F_ATTRIBUTE_ID = atr.F_ATTRIBUTE_ID) as TEMPORAR
+                                                pivot
+                                                (
+	                                                max(TEMPORAR.F_STRING_VALUE) for TEMPORAR.F_NAME IN ( [Длина],[Ширина],[Наименование])
+                                                )
+                                                AS TESTpIVOT");
+            cmd.Connection = SQLConnection.con;
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
                 {
                     dataList.Add(new Balance()
                     {
-                        BalanceID = (int)reader["BalanceId"], 
-                        Type = (bool)reader["Type"],
-                        Dim = (int)reader["Dim"],
-                        Length = (int)reader["Lenth"],
-                        W = (int)reader["W"],
-                        H = (int)reader["H"],
-                        Name = (int)reader["Name"],
-                        Version = (int)reader["Version"],
-                        Date = Convert.ToDateTime(reader["Data"])
+                        //BalanceID = (int)reader["BalanceId"],
+                        //Type = (bool)reader["Type"],
+                        //Dim = (int)reader["Dim"],
+                        //Length = (int)reader["Lenth"],
+                        //W = (int)reader["W"],
+                        //H = (int)reader["H"],
+                        //Name = (int)reader["Name"],
+                        //Version = (int)reader["Version"],
+                        //Date = Convert.ToDateTime(reader["Data"])
+
+
+                        BalanceID = Convert.ToInt32(reader["F_OBJECT_ID"].ToString()), 
+                        //Type = (bool)reader["Type"],
+                        //Dim = (int)reader["Dim"],
+                        Length = Convert.ToInt32(reader["Длина"]),
+                        //W = (int)reader["W"],
+                        //H = (int)reader["H"],
+                        //Name = (int)reader["Name"],
+                        //Version = (int)reader["Version"],
+                        //Date = Convert.ToDateTime(reader["Data"])
+
                     });
                 }
             }
-            objCon.Close();
+            //objCon.Close();
+            cmd.Connection.Close();
         }
         public List<Balance> MakingDataList()
         {
@@ -92,7 +118,7 @@ namespace ResidualMaterials
         }
 
 
-        public void PushingDataInTable()
+        public void PushingDataInTable(string newName, string type, string newDim, string newlength, string newWidth, string newHeight )
         {
             if (isFieldsFilled == true)
             {
@@ -108,25 +134,35 @@ namespace ResidualMaterials
                         inputMaterial = ConvertInputDataToList(name, length, widthDim);
                     }
 
-                    SaveNewMaterialDb(inputMaterial[0].Name, inputMaterial[0].Type, inputMaterial[0].Dim, inputMaterial[0].Length, inputMaterial[0].W, inputMaterial[0].H, 0);
+
+
+                    IMS_Object newbie = new IMS_Object();
+                    IMS_Object_Attributes atr = new IMS_Object_Attributes();
+                    SQLConnection.SQLObj.SaveNewObject(newbie);
+                    SQLConnection.SQLObj.SaveAttributeForObject(atr, "Наименование", newName, false);
+                    SQLConnection.SQLObj.SaveAttributeForObject(atr, "Длина", newlength, false);
+                    SQLConnection.SQLObj.SaveAttributeForObject(atr, "Ширина", newWidth, false);
+
+
+                    //SaveNewMaterialDb(inputMaterial[0].Name, inputMaterial[0].Type, inputMaterial[0].Dim, inputMaterial[0].Length, inputMaterial[0].W, inputMaterial[0].H, 0);
                 }
                 else MessageBox.Show("Материал с таким именем уже существует!");
             }
         }
 
         private List<Balance> ConvertInputDataToList(int n, int l, int w, int h)
-                {
-                    var list = new List<Balance>() { new Balance
-                    { 
-                        Name = n,
-                        Type = true,
-                        Length = l,
-                        W = w,
-                        H = h
-                    } };
+        {
+            var list = new List<Balance>() { new Balance
+            { 
+                Name = n,
+                Type = true,
+                Length = l,
+                W = w,
+                H = h
+            } };
 
-                    return list;
-                }
+            return list;
+        }
         private List<Balance> ConvertInputDataToList(int n, int l, int dim)
         {
             var list = new List<Balance>() { new Balance

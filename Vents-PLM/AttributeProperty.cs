@@ -109,11 +109,31 @@ namespace Vents_PLM
             save.Connection.Open();
             save.CommandType = System.Data.CommandType.StoredProcedure;
             save.CommandText = "IMS_ADD_ATTRIBUTE";
+            
+
             save.Parameters.AddWithValue("inNAME", property.m_NAME);
-            save.Parameters.AddWithValue("inSHORT_NAME", property.m_SHORT_NAME);
-            save.Parameters.AddWithValue("inALIAS", property.m_ALIAS);
+            save.Parameters.AddWithValue("inSHORT_NAME", property.m_SHORT_NAME ?? DBNull.Value.ToString());
+            save.Parameters.AddWithValue("inALIAS", property.m_ALIAS ?? DBNull.Value.ToString());
             save.Parameters.AddWithValue("inGUID", property.m_GUID);
-            save.Parameters.AddWithValue("inNOTE", property.m_NOTE);
+            int mulID = 0;
+            switch (property.m_List)
+            {
+                case "Атрибут может содержать одно значение":
+                    mulID = 0;
+                    break;
+                case "Атрибут может содержать множество значений":
+                    mulID = 1;
+                    break;
+                case "Атрибут может содержать одно значение из списка разрешённых значений+":
+                    mulID = 2;
+                    break;
+                case "Атрибут может содержать множество значений из списка":
+                    mulID = 3;
+                    break;
+            }
+
+            save.Parameters.AddWithValue("inNOTE", property.m_NOTE ?? DBNull.Value.ToString());
+            save.Parameters.AddWithValue("inMULTIPLE_VALUED", mulID);
             reader = save.ExecuteReader();
             reader.Close();
             save.Connection.Close();
@@ -127,10 +147,28 @@ namespace Vents_PLM
             save.CommandType = System.Data.CommandType.StoredProcedure;
             save.CommandText = "IMS_UPDATE_ATTRIBUTE";
             save.Parameters.AddWithValue("inNAME", property.m_NAME);
-            save.Parameters.AddWithValue("inSHORT_NAME", property.m_SHORT_NAME);
-            save.Parameters.AddWithValue("inALIAS", property.m_ALIAS);
+            save.Parameters.AddWithValue("inSHORT_NAME", property.m_SHORT_NAME ?? DBNull.Value.ToString());
+            save.Parameters.AddWithValue("inALIAS", property.m_ALIAS ?? DBNull.Value.ToString());
             save.Parameters.AddWithValue("inGUID", property.m_GUID);
-            save.Parameters.AddWithValue("inNOTE", property.m_NOTE);
+            save.Parameters.AddWithValue("inNOTE", property.m_NOTE ?? DBNull.Value.ToString());
+            int mulID = 0;
+            switch (property.m_List)
+            {
+                case "Атрибут может содержать одно значение":
+                    mulID = 0;
+                    break;
+                case "Атрибут может содержать множество значений":
+                    mulID = 1;
+                    break;
+                case "Атрибут может содержать одно значение из списка разрешённых значений+":
+                    mulID = 2;
+                    break;
+                case "Атрибут может содержать множество значений из списка":
+                    mulID = 3;
+                    break;
+            }
+            
+            save.Parameters.AddWithValue("inMULTIPLE_VALUED", mulID);
             reader = save.ExecuteReader();
             reader.Close();
             save.Connection.Close();
@@ -154,9 +192,9 @@ namespace Vents_PLM
          ICollection myCol;
 
          public static string s0 = "Атрибут может содержать одно значение";
-         private static string s1 = "Атрибут может содержать множество значений";
-         private static string s2 = "Атрибут может содержать одно значение из списка разрешённых значений+";
-         private static string s3 = "Атрибут может содержать множество значений из списка";
+         public static string s1 = "Атрибут может содержать множество значений";
+         public static string s2 = "Атрибут может содержать одно значение из списка разрешённых значений+";
+         public static string s3 = "Атрибут может содержать множество значений из списка";
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
@@ -173,7 +211,7 @@ namespace Vents_PLM
             return new StandardValuesCollection(myCol);
         }
 
-        
+
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             if (sourceType == typeof(string))
