@@ -164,8 +164,8 @@ namespace ResidualMaterials
             height.Text = "";
             length2.Text = "";
             width.Text = "";
-
         }
+
         public void SuperPuper(DataGridView dgv, dynamic o)
         {
             dgv.Columns.Clear();
@@ -180,7 +180,7 @@ namespace ResidualMaterials
             {
                 columnName = new string[] { "№", "Диаметр", "Длина", "Версия", "Дата добавления" };
             }
-            else { columnName = new string[] { "№", "Длина", "Ширина", "Толщина", "Версия", "Дата добавления"}; }
+            else { columnName = new string[] { "№", "Длина", "Ширина", "Толщина", "Версия", "Дата добавления" }; }
 
 
             DataGridViewColumn[] column_array = new DataGridViewColumn[columnName.Length];
@@ -190,7 +190,9 @@ namespace ResidualMaterials
                 col.Name = columnName[cnt];
                 column_array[cnt] = col;
             }
+
             dgv.Columns.AddRange(column_array);
+
 
             var bindingList = new BindingList<Balance>(o.dataListToView);
             var source = new BindingSource(bindingList, null);
@@ -199,6 +201,7 @@ namespace ResidualMaterials
             dgv.Columns["№"].DataPropertyName = "Name";
             dgv.Columns["Версия"].DataPropertyName = "Version";
             dgv.Columns["Дата добавления"].DataPropertyName = "Date";
+
             if (MyDtTable.residualType == false)
             {
                 dgv.Columns["Диаметр"].DataPropertyName = "Dim";
@@ -212,6 +215,7 @@ namespace ResidualMaterials
             }
             dgv.DataSource = source;
         }
+
         public void SuperPuper2(DataGridView dgv, dynamic oDT, dynamic oUsInter)
         {
             dgv.Columns.Clear();

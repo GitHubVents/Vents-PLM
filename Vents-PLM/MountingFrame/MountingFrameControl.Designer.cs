@@ -42,6 +42,7 @@
             this.comboBoxFrameMaterial = new System.Windows.Forms.ComboBox();
             this.comboBoxThickness = new System.Windows.Forms.ComboBox();
             this.btnFrameBuild = new System.Windows.Forms.Button();
+            this.txtBoxForTesting = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // frameNameLbl
@@ -167,11 +168,21 @@
             this.btnFrameBuild.TabIndex = 13;
             this.btnFrameBuild.Text = "Построить";
             this.btnFrameBuild.UseVisualStyleBackColor = true;
+            this.btnFrameBuild.Click += new System.EventHandler(this.btnFrameBuild_Click);
+            // 
+            // txtBoxForTesting
+            // 
+            this.txtBoxForTesting.Location = new System.Drawing.Point(529, 496);
+            this.txtBoxForTesting.Multiline = true;
+            this.txtBoxForTesting.Name = "txtBoxForTesting";
+            this.txtBoxForTesting.Size = new System.Drawing.Size(319, 76);
+            this.txtBoxForTesting.TabIndex = 14;
             // 
             // MountingFrameControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.txtBoxForTesting);
             this.Controls.Add(this.btnFrameBuild);
             this.Controls.Add(this.comboBoxThickness);
             this.Controls.Add(this.comboBoxFrameMaterial);
@@ -209,5 +220,6 @@
         private System.Windows.Forms.ComboBox comboBoxFrameMaterial;
         private System.Windows.Forms.ComboBox comboBoxThickness;
         private System.Windows.Forms.Button btnFrameBuild;
+        private System.Windows.Forms.TextBox txtBoxForTesting;
     }
 }

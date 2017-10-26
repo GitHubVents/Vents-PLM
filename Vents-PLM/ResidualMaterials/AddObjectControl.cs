@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
+using ResidualMaterials;
 
 namespace Vents_PLM
 {
@@ -10,29 +13,32 @@ namespace Vents_PLM
             InitializeComponent();
             myNewObject = new IMS_Object();
         }
-
         IMS_Object myNewObject;
         private void NewObjectAddBtn_Click(object sender, EventArgs e)
         {
             if (MainForm.EditOrNotEdit)
             {
-                SQLConnection.SQLObj.SaveAttributeForObject(MainForm.selectedObj, labelName.Text, txtBoxName.Text, MainForm.EditOrNotEdit);
+                foreach (var item in MainForm.selectedObj)
+                {
+                    SQLConnection.SQLObj.SaveAttributeForObject(item, labelName.Text, txtBoxName.Text, MainForm.EditOrNotEdit);
+                }
             }
             else
             {
                 SQLConnection.SQLObj.SaveNewObject(myNewObject);       // into bd IMS_OBJECTS
-                SQLConnection.SQLObj.SaveAttributeForObject(MainForm.selectedObj, labelName.Text, txtBoxName.Text, MainForm.EditOrNotEdit);
+               
+                SQLConnection.SQLObj.SaveAttributeForObject(null, labelName.Text, txtBoxName.Text, MainForm.EditOrNotEdit);
+               
             }
 
 
             MainForm.EditOrNotEdit = false;
             this.Hide();
         }
-        
 
-        public void ControlEdit(string objectTypeName, IMS_Object_Attributes selectedObject)
+        public void AddObjectControlFill(List<IMS_Object_Attributes> selectedObject)
         {
-            txtBoxName.Text = selectedObject.STRING_VALUE;
+            txtBoxName.Text = selectedObject.Select(x => x.STRING_VALUE).First();
         }
     }
 }

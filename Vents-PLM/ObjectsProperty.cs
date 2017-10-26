@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace Vents_PLM
 {
-    class ObjectsProperty
+   public class ObjectsProperty
     {
         String m_GUID;
         [Browsable(true)]

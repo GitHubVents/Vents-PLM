@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 
 namespace Vents_PLM
@@ -130,53 +131,87 @@ namespace Vents_PLM
             return objects;
         }
 
-        public void GetObjectWithAttr(ObjectsProperty myObj)
+        public DataTable GetObjectWithAttr(string objTypeInt, out List<string> columnNames)
         {
-            var list = GetListAttrByObjType(myObj); 
-            string attributesNames = "";
-            if (list.Count != 0)
-            {
-                foreach (var item in list)
-                {
-                    if (!((item == "") || item == null))
-                    { attributesNames += "[" + item + "], "; }
-                }
-                attributesNames = attributesNames.Remove(attributesNames.Count() - 2, 2);
-            }
 
-            objectsWithAttributes.Clear();
-            con.Open();
-            SqlCommand command = new SqlCommand(@"select F_OBJECT_ID + " + attributesNames +
-                                                @"from	(select atr.F_NAME, objAtr.F_STRING_VALUE, temp.F_OBJECT_ID
-		                                                from
-			                                                 (select F_OBJECT_ID from IMS_OBJECTS where F_OBJECT_TYPE = " + myObj.OBJECT_TYPE + @")
-		                                                as temp, IMS_OBJECT_ATTRS objAtr, IMS_ATTRIBUTES atr 
-		                                                where temp.F_OBJECT_ID = objAtr.F_OBJECT_ID
-		                                                and objAtr.F_ATTRIBUTE_ID = atr.F_ATTRIBUTE_ID) as TEMPORAR
+            DataTable dt = new DataTable();
+
+            if (objTypeInt != null && objTypeInt != string.Empty)
+            {
+                //создаем из списка назв.атрибутов одну строку для SQL
+                List<string> listAttrNames = GetListAttrByObjType(objTypeInt);
+                string attributesNames = "";
+                if (listAttrNames.Count != 0)
+                {
+                    foreach (var name in listAttrNames)
+                    {
+                        if (!((name == "") || name == null))
+                        { attributesNames += "[" + name + "], "; }
+                    }
+                    attributesNames = attributesNames.Remove(attributesNames.Count() - 2, 2);
+                }
+
+                con.Open();
+
+                columnNames = listAttrNames;
+                columnNames.Insert(0, "F_OBJECT_ID");
+
+                if (attributesNames != string.Empty)
+                {
+                    SqlCommand command = new SqlCommand(@"select F_OBJECT_ID, " + attributesNames +
+                                                        @"from	(select atr.F_NAME, objAtr.F_STRING_VALUE, temp.F_OBJECT_ID
+                                                   from
+                                                    (select F_OBJECT_ID from IMS_OBJECTS where F_OBJECT_TYPE = " + objTypeInt + @")
+                                                  as temp, IMS_OBJECT_ATTRS objAtr, IMS_ATTRIBUTES atr 
+                                                  where temp.F_OBJECT_ID = objAtr.F_OBJECT_ID
+                                                  and objAtr.F_ATTRIBUTE_ID = atr.F_ATTRIBUTE_ID) as TEMPORAR
                                                 pivot
                                                 (
-	                                                MIN(TEMPORAR.F_STRING_VALUE) for TEMPORAR.F_NAME IN ( " + attributesNames + @")
+                                                    MAX(TEMPORAR.F_STRING_VALUE) for TEMPORAR.F_NAME IN ( " + attributesNames + @")
                                                 )
-                                                AS TESTpIVOT ", con);
-            command.CommandType = CommandType.Text;
+                                                AS TESTpIVOT", con);
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
+                    command.CommandType = CommandType.Text;
+
+                    reader = command.ExecuteReader();
+
+                    int fieldCount = reader.FieldCount;// количество колонок
+                    for (int i = 0; i < fieldCount; i++)
+                    {
+                        dt.Columns.Add();
+                        dt.Columns[i].ColumnName = listAttrNames[i].ToString();
+                    }
 
 
-            //создавать класс динамически со свойствами 
-            reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                objectsWithAttributes.Add( new IMS_Object_Attributes { 
-                                    
-                    //OBJECT_ID = reader["F_OBJECT_ID"].ToString(),
-                    STRING_VALUE = reader[list[2]].ToString()
+                    int rowsCount = 0;
+                    while (reader.Read())
+                    {
+                        int colCount = fieldCount - 1;
 
-                });
+                        DataRow newRow = dt.NewRow();
+                        dt.Rows.Add(newRow);
 
+                        while (colCount >= 0)
+                        {
+                            dt.Rows[rowsCount][colCount] = reader[colCount].ToString();
+                            colCount--;
+                        }
+
+                        rowsCount++;
+                    }
+                }
+
+                con.Close();
+                reader.Close();
+
+                return dt;
             }
-            con.Close();
-            reader.Close();
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Тип обьекта не найден." + Environment.NewLine + "Список колонок пуст!");
+                columnNames = null;
+                return dt;
+            }
         }
 
 
@@ -234,14 +269,15 @@ namespace Vents_PLM
 
         }
 
-        public void DeleteObject(IMS_Object_Attributes selectedObject)
+
+        public void DeleteObject(List<IMS_Object_Attributes> selectedObject)
         {
             SqlCommand delete = new SqlCommand();
             delete.Connection = con;
             delete.CommandType = CommandType.StoredProcedure;
             delete.CommandText = "IMS_DELETE_OBJECT";
 
-            delete.Parameters.AddWithValue("inOBJECT_ID", selectedObject.OBJECT_ID);
+            delete.Parameters.AddWithValue("inOBJECT_ID", selectedObject[0].OBJECT_ID);
 
             delete.Connection.Open();
             reader = delete.ExecuteReader();
@@ -272,7 +308,7 @@ namespace Vents_PLM
         }
 
 
-        public List<string> GetListAttrByObjType(ObjectsProperty myObj)
+        public List<string> GetListAttrByObjType(string objType)
         {
             List<string> listAttrByObjType = new List<string>();
             con.Open();
@@ -281,7 +317,7 @@ namespace Vents_PLM
                                                  RIGHT JOIN
 	                                                (SELECT F_ATTRIBUTE_ID FROM IMS_OBJECT_ATTRS objATTR
 	                                                RIGHT JOIN
-		                                                (SELECT F_OBJECT_ID FROM IMS_OBJECTS WHERE F_OBJECT_TYPE = " + myObj.OBJECT_TYPE + @") AS tempOBJ
+		                                                (SELECT F_OBJECT_ID FROM IMS_OBJECTS WHERE F_OBJECT_TYPE = " + objType + @") AS tempOBJ
 		                                                 ON objATTR.F_OBJECT_ID = tempOBJ.F_OBJECT_ID) AS ATRid
 		                                                 ON ATR.F_ATTRIBUTE_ID = ATRid.F_ATTRIBUTE_ID");
             get.Connection = con;
@@ -294,11 +330,32 @@ namespace Vents_PLM
             con.Close();
             reader.Close();
 
-
-
             return listAttrByObjType;
         }
 
+        public string GetObjTypeIntByName(string objTypeName)
+        {
+            string objType = string.Empty;
+
+            if (objTypeName != string.Empty && objTypeName != null)
+            { 
+                con.Open();
+
+                SqlCommand get = new SqlCommand(@"SELECT F_OBJECT_TYPE FROM IMS_OBJECT_TYPES WHERE F_OBJ_NAME = " + "'" + objTypeName + "'");
+                get.Connection = con;
+                get.CommandType = CommandType.Text;
+                reader = get.ExecuteReader();
+                while (reader.Read())
+                {
+                    objType = reader["F_OBJECT_TYPE"].ToString();
+                }
+                con.Close();
+                reader.Close();
+                return objType;
+            }
+            System.Windows.Forms.MessageBox.Show("Передан не существующий обьект-тип");
+            return objType;
+        }
 
 
 
@@ -306,6 +363,20 @@ namespace Vents_PLM
         {
              return Enumerable.Empty<T>();
         }
-
+        private List<ExpandoObject> CreateProp( List<string> listAttrNames)
+        {
+            List<ExpandoObject> properties = new List<ExpandoObject>();
+            foreach (var item in listAttrNames)
+            {
+                dynamic sampleObject = new ExpandoObject();//sampleObject заменить на список объектов из reader[]
+                sampleObject.TestProperty = item;
+                properties.Add(sampleObject);
+                sampleObject.Длина = "Hi";
+               // if (sampleObject.TestProperty == item) { sampleObject.item = "gjgh"; };
+            }
+            
+            return properties;
+        }
+        
     }
 }

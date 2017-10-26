@@ -47,7 +47,7 @@ namespace ResidualMaterials
             //objCon.Open();
             SQLConnection.con.Open();
             //SqlCommand cmd = new SqlCommand("SELECT * FROM Balance " + type, objCon);
-            SqlCommand cmd = new SqlCommand(@"select F_OBJECT_ID,[Длина],[Ширина],[Наименование]
+            SqlCommand cmd = new SqlCommand(@"select F_OBJECT_ID, [Длина], [Ширина], [Наименование]
                                                 from	(select atr.F_NAME, objAtr.F_STRING_VALUE, temp.F_OBJECT_ID
 		                                                from
 			                                                 (select F_OBJECT_ID from IMS_OBJECTS where F_OBJECT_TYPE = 1001)
@@ -56,7 +56,7 @@ namespace ResidualMaterials
 		                                                and objAtr.F_ATTRIBUTE_ID = atr.F_ATTRIBUTE_ID) as TEMPORAR
                                                 pivot
                                                 (
-	                                                max(TEMPORAR.F_STRING_VALUE) for TEMPORAR.F_NAME IN ( [Длина],[Ширина],[Наименование])
+	                                                max(TEMPORAR.F_STRING_VALUE) for TEMPORAR.F_NAME IN ( [Длина], [Ширина], [Наименование])
                                                 )
                                                 AS TESTpIVOT");
             cmd.Connection = SQLConnection.con;
@@ -95,10 +95,23 @@ namespace ResidualMaterials
         }
         public List<Balance> MakingDataList()
         {
+
+            DataTable dataTable = new DataTable();
+            List<string> columnList;
+            if (MainForm.myObj != null)
+            {
+                dataTable = SQLConnection.SQLObj.GetObjectWithAttr(
+                                                            SQLConnection.SQLObj.GetObjTypeIntByName(MainForm.myObj.NAME),
+                                                            out columnList);
+                ConvertingDtToList(dataTable);
+            }
+
+
             List<Balance> result = new List<Balance>();
             Balance bal;
+
             var list = (from it in 
-                            (from item in dataList where item.Type.Equals(residualType) group item by item.Name ) 
+                            (from item in dataList /*where item.Type.Equals(residualType)*/ group item by item.Name ) 
                         orderby version descending select it);
             foreach (var item in list)
             {
@@ -107,8 +120,8 @@ namespace ResidualMaterials
                                      Dim = item.Last().Dim, Length = item.Last().Length, W = item.Last().W,
                                      H = item.Last().H, Name = item.Last().Name, Version = item.Last().Version, Date = item.Last().Date};
                 result.Add(bal);
-            }                     
-                                
+            }
+            
             return result;
         }
         public List<Balance> GetItemsofTheSameVersion()
@@ -116,7 +129,24 @@ namespace ResidualMaterials
             var list = (from item in dataList where item.Name.Equals(itemToCutFrom.Name) select item).ToList();
             return list;
         }
-
+        public void ConvertingDtToList(DataTable data)
+        {
+            foreach (var item in data.AsEnumerable())
+            {
+                dataList.Add(new Balance
+                {
+                    BalanceID = Convert.ToInt32(item["F_OBJECT_ID"]),
+                    Dim = Convert.ToInt32((Convert.ToString(item["Диаметр"]) != string.Empty) ? item["Диаметр"] : null),
+                    //H = Convert.ToInt32((Convert.ToString(item["Высота"]) != string.Empty) ? item["Высота"] : null),
+                    Name = Convert.ToInt32((Convert.ToString(item["Наименование"]) != string.Empty) ? item["Наименование"] : null),
+                    Length = Convert.ToInt32((Convert.ToString(item["Длина"]) != string.Empty) ? item["Длина"] : null),
+                    Date = Convert.ToDateTime((Convert.ToString(item["Дата создания"]) != string.Empty) ? item["Дата создания"] : null),
+                    W = Convert.ToInt32((Convert.ToString(item["Ширина"]) != string.Empty) ? item["Ширина"] : null)
+                    //Version = Convert.ToInt32((item["Версия"]) != null ? item["Версия"] : null),
+                    //Type = Convert.ToBoolean((item["Тип"]) != null ? item["Тип"] : null)
+                });
+            }
+        }
 
         public void PushingDataInTable(string newName, string type, string newDim, string newlength, string newWidth, string newHeight )
         {
@@ -135,14 +165,21 @@ namespace ResidualMaterials
                     }
 
 
-
                     IMS_Object newbie = new IMS_Object();
                     IMS_Object_Attributes atr = new IMS_Object_Attributes();
                     SQLConnection.SQLObj.SaveNewObject(newbie);
                     SQLConnection.SQLObj.SaveAttributeForObject(atr, "Наименование", newName, false);
-                    SQLConnection.SQLObj.SaveAttributeForObject(atr, "Длина", newlength, false);
-                    SQLConnection.SQLObj.SaveAttributeForObject(atr, "Ширина", newWidth, false);
-
+                    SQLConnection.SQLObj.SaveAttributeForObject(atr, "Дата создания", date.ToString(), false);
+                    //SQLConnection.SQLObj.SaveAttributeForObject(atr, "Вид изделия", type, false);
+                    if (MyDtTable.residualType)
+                    {
+                        SQLConnection.SQLObj.SaveAttributeForObject(atr, "Ширина", newWidth, false);
+                        SQLConnection.SQLObj.SaveAttributeForObject(atr, "Высота", newHeight, false);
+                    }
+                    else
+                    {
+                        SQLConnection.SQLObj.SaveAttributeForObject(atr, "Диаметр", newDim, false);
+                    }
 
                     //SaveNewMaterialDb(inputMaterial[0].Name, inputMaterial[0].Type, inputMaterial[0].Dim, inputMaterial[0].Length, inputMaterial[0].W, inputMaterial[0].H, 0);
                 }

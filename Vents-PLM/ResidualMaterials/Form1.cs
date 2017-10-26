@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 using ResidualMaterials;
+using System.Linq;
+using System.Collections.Generic;
+using System.Data;
 
 namespace Vents_PLM
 {
@@ -14,18 +17,22 @@ namespace Vents_PLM
 
             GetComboValues();
             comboBox1.SelectedIndex = 0;
-            dt.Load_Data(MyDtTable.residualType);
-            usInter.SuperPuper(dataGridView, dt);
+            dataGridView.DataSource = dt.dataList;
+            //usInter.SuperPuper(dataGridView, dt);
         }
         MyDtTable dt;
+        DataTable dataTable;
         UserInterface usInter;
+        List<string> columnList;
+
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             usInter.ClearTxtBoxes(txtName, txtWidthDim, txtLength, txtH, txtLengthWP, txtWidthWP);
             usInter.CheckType(comboBox1);
             usInter.ManagingUserInterface(lblWidthWP, lblH, lblWidthDim, txtWidthWP, txtH);
 
-            usInter.SuperPuper(dataGridView, dt);
+            dataGridView.DataSource = dt.dataList;
+            //usInter.SuperPuper(dataGridView, dt);
             dataGridView2.Columns.Clear();
         }
 
@@ -46,7 +53,6 @@ namespace Vents_PLM
 
             usInter.SuperPuper(dataGridView, dt);
             usInter.SuperPuper2(dataGridView2, dt, usInter);
-
         }
         private static void AllowUserInputOnlyNumbers(object sender, KeyPressEventArgs e)
         {
@@ -63,8 +69,8 @@ namespace Vents_PLM
             }
         }
 
-        
 
+        #region AllowUserInputOnlyNumbers
         private void txtWidthDim_KeyPress(object sender, KeyPressEventArgs e)
         {
             AllowUserInputOnlyNumbers(sender, e);
@@ -89,6 +95,7 @@ namespace Vents_PLM
         {
             AllowUserInputOnlyNumbers(sender, e);
         }
+        #endregion
 
         private void dataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -133,6 +140,34 @@ namespace Vents_PLM
             {
                 comboBox1.Items.Add(item);
             }
+        }
+        public void FillForm1Residual(List<IMS_Object_Attributes> selectedObject)
+        {
+            var list = (from selObj in selectedObject
+                           join attr in SQLConnection.SQLObj.attributePropList.DefaultIfEmpty()
+                           on selObj.ATTRIBUTE_ID equals attr.ATTRIBUTE_ID
+                           into temp
+                           from l in temp
+                           where l.NAME.Equals("Наименование") || l.NAME.Equals("Длина") || l.NAME.Equals("Ширина") || l.NAME.Equals("Диаметр")
+                        select new { selObj.STRING_VALUE, l        .NAME}).ToList();
+
+            txtName.Text = list.Where(x=>x.NAME.Equals("Наименование")).Select(x=>x.STRING_VALUE).FirstOrDefault();
+            txtLength.Text = list.Where(x => x.NAME.Equals("Длина")).Select(x => x.STRING_VALUE).FirstOrDefault();
+            if (!MyDtTable.residualType)
+            {
+                txtWidthDim.Text = list.Where(x => x.NAME.Equals("Диаметр")).Select(x => x.STRING_VALUE).FirstOrDefault();
+            }
+            else
+            {
+                txtWidthDim.Text = list.Where(x => x.NAME.Equals("Ширина")).Select(x => x.STRING_VALUE).FirstOrDefault();
+            }
+
+
+
+
+
+
+            // selectedObject.Select(x => x.).First();
         }
 
     }

@@ -50,6 +50,7 @@
             this.txtBoxName.Name = "txtBoxName";
             this.txtBoxName.Size = new System.Drawing.Size(185, 19);
             this.txtBoxName.TabIndex = 2;
+            this.txtBoxName.Tag = "Наименование";
             // 
             // labelName
             // 
